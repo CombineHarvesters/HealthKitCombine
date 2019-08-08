@@ -2,16 +2,13 @@
 import Combine
 import HealthKit
 
-public struct QueryPublisher {
+public struct QueryPublisher<Query: HKQuery, Output, Failure: Error> {
 
-    public typealias Output = [HKSample]
-    public typealias Failure = Error
-
-    typealias Completion = (HKSampleQuery, [HKSample]?, Error?) -> ()
+    typealias Completion = (Query, Output?, Failure?) -> ()
 
     private let store: HKHealthStore
-    private let query: (@escaping Completion) -> HKSampleQuery
-    init(store: HKHealthStore, query: @escaping (@escaping Completion) -> HKSampleQuery) {
+    private let query: (@escaping Completion) -> Query
+    init(store: HKHealthStore, query: @escaping (@escaping Completion) -> Query) {
         self.store = store
         self.query = query
     }
@@ -40,7 +37,7 @@ extension QueryPublisher {
     {
         fileprivate init(subscriber: Subscriber,
                          store: HKHealthStore,
-                         query: (@escaping Completion) -> HKSampleQuery) {
+                         query: (@escaping Completion) -> Query) {
 
             store.execute(query { _, output, failure in
 
