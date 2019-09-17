@@ -29,17 +29,20 @@ extension QueryPublisher: Publisher {
 
 extension QueryPublisher {
 
-    private final class Subscription<Subscriber>: Combine.Subscription
+    fileprivate final class Subscription<Subscriber>
         where
         Subscriber: Combine.Subscriber,
         Subscriber.Failure == Failure,
         Subscriber.Input == Output
     {
+        private let store: HKHealthStore
+        private let query: Query
         fileprivate init(subscriber: Subscriber,
                          store: HKHealthStore,
                          query: (@escaping Completion) -> Query) {
 
-            store.execute(query { _, output, failure in
+            self.store = store
+            self.query = query { _, output, failure in
 
                 if let output = output {
                     _ = subscriber.receive(output)
@@ -47,10 +50,18 @@ extension QueryPublisher {
                 } else {
                     subscriber.receive(completion: .failure(failure!))
                 }
-            })
+            }
         }
+    }
+}
 
-        func request(_ demand: Subscribers.Demand) {}
-        func cancel() {}
+extension QueryPublisher.Subscription: Subscription {
+
+    func request(_ demand: Subscribers.Demand) {
+        store.execute(query)
+    }
+
+    func cancel() {
+        store.stop(query)
     }
 }
