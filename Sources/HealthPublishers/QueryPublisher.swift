@@ -2,16 +2,21 @@
 import Combine
 import HealthKit
 
+extension HKHealthStore {
+
+    public func publisher<Query: HKQuery, Output, Failure: Error>(
+        for query: @escaping (@escaping (Query, Output?, Failure?) -> ()) -> Query
+    ) -> QueryPublisher<Query, Output, Failure> {
+        QueryPublisher(store: self, query: query)
+    }
+}
+
 public struct QueryPublisher<Query: HKQuery, Output, Failure: Error> {
 
     typealias Completion = (Query, Output?, Failure?) -> ()
 
-    private let store: HKHealthStore
-    private let query: (@escaping Completion) -> Query
-    init(store: HKHealthStore, query: @escaping (@escaping Completion) -> Query) {
-        self.store = store
-        self.query = query
-    }
+    fileprivate let store: HKHealthStore
+    fileprivate let query: (@escaping Completion) -> Query
 }
 
 extension QueryPublisher: Publisher {

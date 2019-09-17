@@ -1,16 +1,6 @@
 
 import Combine
-import CoreLocation
 import HealthKit
-
-extension HKHealthStore {
-
-    public func publisher<Query: HKQuery, Output, Failure: Error>(
-        for query: @escaping (@escaping (Query, Output?, Failure?) -> ()) -> Query
-    ) -> QueryPublisher<Query, Output, Failure> {
-        QueryPublisher(store: self, query: query)
-    }
-}
 
 extension HKHealthStore {
 
