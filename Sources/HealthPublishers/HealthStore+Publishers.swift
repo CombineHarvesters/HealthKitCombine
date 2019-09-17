@@ -5,15 +5,24 @@ import HealthKit
 
 extension HKHealthStore {
 
+    public func publisher<Query: HKQuery, Output, Failure: Error>(
+        for query: @escaping (@escaping (Query, Output?, Failure?) -> ()) -> Query
+    ) -> QueryPublisher<Query, Output, Failure> {
+        QueryPublisher(store: self, query: query)
+    }
+}
+
+extension HKHealthStore {
+
     public func activitySummaryPublisher(
         predicate: NSPredicate?
     ) -> QueryPublisher<HKActivitySummaryQuery, [HKActivitySummary], Error> {
 
-        QueryPublisher(store: self) { completion in
+        publisher(for: {
 
             HKActivitySummaryQuery(predicate: predicate,
-                                   resultsHandler: completion)
-        }
+                                   resultsHandler: $0)
+        })
     }
 }
 
@@ -25,13 +34,13 @@ extension HKHealthStore {
         samplePredicates: [HKSampleType : NSPredicate]?
     ) -> QueryPublisher<HKCorrelationQuery, [HKCorrelation], Error> {
 
-        QueryPublisher(store: self) { completion in
+        publisher(for: {
 
             HKCorrelationQuery(type: type,
                                predicate: predicate,
                                samplePredicates: samplePredicates,
-                               completion: completion)
-        }
+                               completion: $0)
+        })
     }
 }
 
@@ -44,14 +53,14 @@ extension HKHealthStore {
         sortDescriptors: [NSSortDescriptor]?
     ) -> QueryPublisher<HKSampleQuery, [HKSample], Error> {
 
-        QueryPublisher(store: self) { completion in
+        publisher(for: {
 
             HKSampleQuery(sampleType: sampleType,
                           predicate: predicate,
                           limit: limit,
                           sortDescriptors: sortDescriptors,
-                          resultsHandler: completion)
-        }
+                          resultsHandler: $0)
+        })
     }
 }
 
@@ -62,12 +71,12 @@ extension HKHealthStore {
         samplePredicate: NSPredicate?
     ) -> QueryPublisher<HKSourceQuery, Set<HKSource>, Error> {
 
-        QueryPublisher(store: self) { completion in
+        publisher(for: {
 
             HKSourceQuery(sampleType: sampleType,
                           samplePredicate: samplePredicate,
-                          completionHandler: completion)
-        }
+                          completionHandler: $0)
+        })
     }
 }
 
@@ -79,12 +88,12 @@ extension HKHealthStore {
         options: HKStatisticsOptions
     ) -> QueryPublisher<HKStatisticsQuery, HKStatistics, Error> {
 
-        QueryPublisher(store: self) { completion in
+        publisher(for: {
 
             HKStatisticsQuery(quantityType: quantityType,
                               quantitySamplePredicate: quantitySamplePredicate,
                               options: options,
-                              completionHandler: completion)
-        }
+                              completionHandler: $0)
+        })
     }
 }
