@@ -3,16 +3,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "HealthPublishers",
+    name: "HealthKitCombine",
     platforms: [
         .iOS(.v13),
         .watchOS(.v6)
     ],
     products: [
-        .library(name: "HealthPublishers", targets: ["HealthPublishers"]),
+        .library(name: "HealthKitCombine", targets: ["HealthKitCombine"]),
     ],
     targets: [
-        .target(name: "HealthPublishers"),
-        .testTarget(name: "HealthPublishersTests", dependencies: ["HealthPublishers"]),
+        .target(name: "HealthKitCombine"),
+        .testTarget(name: "HealthKitCombineTests", dependencies: ["HealthKitCombine"]),
     ]
 )
