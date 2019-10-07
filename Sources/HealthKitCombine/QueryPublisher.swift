@@ -42,6 +42,7 @@ extension QueryPublisher {
     {
         private let store: HKHealthStore
         private let query: Query
+        private var hasExecuted = false
         fileprivate init(subscriber: Subscriber,
                          store: HKHealthStore,
                          query: (@escaping Completion) -> Query) {
@@ -63,6 +64,12 @@ extension QueryPublisher {
 extension QueryPublisher.Subscription: Subscription {
 
     func request(_ demand: Subscribers.Demand) {
+        // If the store is asked to execute the same query more than once an
+        // exception will be thrown. This can happen when this publisher is in
+        // a flatMap – for example to flatMap after an AuthorizationRequest
+        // publisher.
+        guard !hasExecuted else { return }
+        hasExecuted = true
         store.execute(query)
     }
 
